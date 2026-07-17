@@ -1,0 +1,3 @@
+# Local per-dev agent config (this repo does not ship its own)
+.claude/
+*.bak

@@ -1,0 +1,57 @@
+<!-- claude-baton:start -->
+## Sessions and handoffs (context methodology)
+
+Installed by [claude-baton](https://github.com/compota334/claude-baton). A
+Claude Code session is NEVER stretched until auto-compact: that is where the
+detail of the conversation gets lost. The cycle is: new session -> read the
+handoff -> work -> close with a handoff -> new session. The full history stays
+in `docs/handoff/` and every session starts with fresh context.
+
+**When a session starts, the agent must:**
+1. Read the most recent handoff in `docs/handoff/` (or the one the user points
+   to) BEFORE touching any code.
+2. Check git state BEFORE working: `git fetch origin`, which branch you are on,
+   whether it is up to date with its remote, and whether there is uncommitted
+   work from a previous session. If it is not clear which branch to work on
+   (or where to branch from), ASK the user before touching anything.
+3. Remind the user of the cycle in two lines: a hook warns at 70% and 80% of
+   the context window, at 70% the session starts closing, and at the end there
+   will be a handoff plus a new session.
+
+**During the session:** the repo hook (`.claude/hooks/context-warn.sh`) injects
+context warnings to the agent (the agent CANNOT see its own percentage without
+this; the human sees it in the statusline). Rules on receiving the warning:
+- **70%**: do not start new large tasks. Finish what is open, write the
+  handoff, and commit and push. The goal is to close leaving 10-15% of the
+  window free.
+- **80%**: write the handoff NOW, before anything else.
+
+**When closing the session (the agent does this WITHOUT being asked; also via
+`/handoff`):**
+1. Write the handoff to `docs/handoff/YYYY-MM-DD_NAME_handoff.md` (NAME in
+   uppercase: the dev's short name; ask if you do not know it). If one from
+   the same dev already exists that day, the next one takes a letter (`_B`,
+   `_C`, ...). Funnel structure (general -> specific -> general close):
+   context, what was done (with commit hashes), files touched, lessons learned
+   (ONLY real problems that took several attempts; never invent one), pending
+   work in order, and any operational state git does not capture. Do not
+   repeat what is already in CLAUDE.md. If the session started from a previous
+   handoff, absorb into the new one whatever is still relevant. Handoffs
+   ACCUMULATE: never delete or overwrite the old ones (that is why they carry
+   dates); the newest is the starting point and the older ones remain as
+   history.
+2. Commit and push everything verified.
+3. Give the user the close-out with LITERAL, copy-ready instructions (assume an
+   inexperienced user; this applies to every manual instruction you give):
+   (a) "Copy and paste this into this same chat and press Enter:
+   `/rename DD-MM-YY <short title of what was done>`" (the agent builds the
+   date and the title; only the human can rename), and (b) "Then close this
+   conversation, open a NEW one, and make your first message: read the handoff
+   `docs/handoff/<file just created>` and let's continue".
+
+**Per-dev setup (once):** update Claude Code (`claude update`; old versions do
+not support the hook); enable the statusline with the context percentage
+(`/statusline`); if you use a 1M window, add
+`"env": {"CLAUDE_CONTEXT_LIMIT": "1000000"}` to your
+`.claude/settings.local.json` (the hook default is 200k).
+<!-- claude-baton:end -->
