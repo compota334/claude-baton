@@ -4,7 +4,7 @@
 # (your project root).
 set -euo pipefail
 
-VERSION="0.2.0"
+VERSION="0.3.0"
 REPO_RAW="https://raw.githubusercontent.com/compota334/claude-baton/main"
 TEMPLATES=(context-warn.sh handoff.md kickoff.md revisit.md CLAUDE.md.section INDEX.md)
 MARK_START="<!-- claude-baton:start -->"

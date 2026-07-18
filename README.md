@@ -89,6 +89,32 @@ that make agent output trustworthy:
 
 ## Install
 
+There are two ways to get claude-baton: as a **Claude Code plugin** (simplest,
+follows you across every project) or with the **script installer** (installs
+into one repo, so a team can commit and share it).
+
+### Option 1: Claude Code plugin (simplest)
+
+Inside any Claude Code session, run:
+
+```
+/plugin marketplace add compota334/claude-baton
+/plugin install claude-baton@claude-baton
+```
+
+That's it: the context hook and the commands are active in every project you
+open. Plugin commands are namespaced: use `/claude-baton:kickoff`,
+`/claude-baton:handoff` and `/claude-baton:revisit`. `docs/handoff/` is
+created in each project the first time you close a session there.
+
+What the plugin does NOT carry: the CLAUDE.md methodology section (plugins
+cannot auto-load CLAUDE.md content). The session cycle works fully; if you
+also want the engineering rules (fail loud, phased work, mandatory
+verification) written into a repo for every dev's agent, use the script
+installer below (both can coexist: the hook warns only once per session).
+
+### Option 2: script installer (per-repo, team mode)
+
 From your project root (must be a git repository; requires `jq`; Linux and
 macOS supported):
 
