@@ -167,9 +167,9 @@ new session, first message: /kickoff
   -> work
   -> hook warns at 70%: finish what is open, no new large tasks
   -> hook warns at 80%: write the handoff NOW
-  -> agent writes docs/handoff/YYYY-MM-DD_NAME_handoff.md (metadata header:
-     Session, Date, Dev, Commits, Topics, Summary), appends the INDEX.md row,
-     commits, pushes
+  -> agent writes docs/handoff/YYYY-MM-DD_<short-title>.md (same title as the
+     session name; metadata header: Session, Date, Dev, Branch, Commits,
+     Resume, Topics, Summary), appends the INDEX.md row, commits, pushes
   -> you rename the session (/rename DD-MM-YY short-title, the exact Session
      name from the header) and open a new one with /kickoff
   -> the old conversation stays intact in your list: reopen it any time
@@ -227,8 +227,8 @@ user). The cycle is unchanged; the operator plays the human role:
   EXECUTE, not display: send `/rename <Session name>`, close the session,
   open a new one, send `/kickoff`. The installed CLAUDE.md says this
   explicitly, so the inner agent knows its "user" may be an operator.
-- The operator's uppercase name (e.g. `HERMES`) is the NAME in handoff files,
-  which keeps human and agent sessions distinguishable in the index.
+- The operator's uppercase name (e.g. `HERMES`) is the `Dev:` in handoff
+  headers, which keeps human and agent sessions distinguishable in the index.
 - The operator answers the inner agent's questions (branch choice, unclear
   state) exactly as a human would; if it cannot answer, it should stop and
   escalate to its own owner rather than guess.

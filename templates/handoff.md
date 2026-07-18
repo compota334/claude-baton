@@ -1,18 +1,21 @@
 Write a handoff for the next agent, following the "Sessions and handoffs"
 convention in CLAUDE.md: you are passing the baton.
 
-The folder is `docs/handoff/` (it exists; if it ever doesn't, create it). Naming:
-`YYYY-MM-DD_NAME_handoff.md` with NAME in uppercase (the dev's short name). If
-you do not know the user's name, ask before writing. Check the folder for
-handoffs from the same user on the same date: if there is none, no letter; if
-one or more exist, append the next letter in alphabetical order (`_B`, `_C`,
-...) to keep them ordered.
+The folder is `docs/handoff/` (it exists; if it ever doesn't, create it).
+Naming: `YYYY-MM-DD_<short-title>.md`, where `<short-title>` is a short
+kebab-case slug of what the session did, the SAME title the session name
+carries (postmortem-style: date plus topic). No author and no "handoff"
+suffix in the filename: the folder already says what it is, and the author
+belongs in the metadata header below. Only if that exact filename already
+exists (same date, same title), append the next letter in alphabetical order
+(`_B`, `_C`, ...) to keep them ordered.
 
 Start the file with this metadata header, every field filled:
 
     Session: DD-MM-YY <short title>
     Date: YYYY-MM-DD
-    Dev: NAME
+    Dev: NAME (the dev's short name, uppercase; ask if you do not know it)
+    Branch: <git branch the session worked on>
     Commits: <first hash>..<last hash> (or "none")
     Resume: claude --resume <session-id>
     Topics: <comma-separated lowercase tags>
@@ -49,7 +52,7 @@ and any long process in progress with the information needed to resume it.
 
 After writing the handoff, update the library index `docs/handoff/INDEX.md`:
 append ONE row to the table with the same data as the metadata header (Date,
-Session, Handoff file, Commits, Topics, Summary). The Commits column carries
+Session, Handoff file, Dev, Commits, Topics, Summary). The Commits column carries
 the same `<first>..<last>` range as the header, so from the index anyone can
 run `git log <first>..<last>` and read the session's work commit by commit.
 If INDEX.md does not exist, create it by copying the relevio template

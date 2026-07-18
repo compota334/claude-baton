@@ -24,6 +24,10 @@ how it handles errors, and how sessions open and close.
   files, tests and mocks. Never assume a single grep caught everything.
 - **Re-read before editing**: in long conversations, re-read a file before
   editing it and verify the edit applied. Do not trust context memory.
+- **Commit small and often**: one idea, one commit, with a descriptive
+  message. The commit range recorded in each handoff is meant to narrate the
+  session step by step (`git log first..last`); a single giant commit
+  narrates nothing.
 
 ## Mandatory verification before reporting anything as done
 
@@ -79,10 +83,12 @@ this; the human sees it in the statusline). Rules on receiving the warning:
 
 **When closing the session (the agent does this WITHOUT being asked; also via
 `/handoff`):**
-1. Write the handoff to `docs/handoff/YYYY-MM-DD_NAME_handoff.md` (NAME in
-   uppercase: the dev's short name; ask if you do not know it). If one from
-   the same dev already exists that day, the next one takes a letter (`_B`,
-   `_C`, ...). Funnel structure (general -> specific -> general close):
+1. Write the handoff to `docs/handoff/YYYY-MM-DD_<short-title>.md`, where
+   `<short-title>` is the same kebab-case title the session name carries (no
+   author and no "handoff" suffix in the filename; the author goes in the
+   metadata header). If that exact filename already exists, the next one
+   takes a letter (`_B`, `_C`, ...). Funnel structure (general -> specific ->
+   general close):
    context, what was done (with commit hashes), files touched, lessons learned
    (ONLY real problems that took several attempts; never invent one), pending
    work in order, and any operational state git does not capture. Do not
@@ -91,8 +97,9 @@ this; the human sees it in the statusline). Rules on receiving the warning:
    ACCUMULATE: never delete or overwrite the old ones (that is why they carry
    dates); the newest is the starting point and the older ones remain as
    history. Start the handoff with the metadata header defined in `/handoff`
-   (Session, Date, Dev, Commits, Topics, Summary) and append the matching row
-   to `docs/handoff/INDEX.md` (append-only: never edit or delete old rows).
+   (Session, Date, Dev, Branch, Commits, Resume, Topics, Summary) and append
+   the matching row to `docs/handoff/INDEX.md` (append-only: never edit or
+   delete old rows).
 2. Commit and push everything verified.
 3. Give the user the close-out with LITERAL, copy-ready instructions (assume an
    inexperienced user; this applies to every manual instruction you give):

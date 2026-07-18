@@ -18,5 +18,5 @@ How to find something:
 
 Rows are append-only: never edit or delete existing rows.
 
-| Date | Session (conversation name) | Handoff file | Commits | Topics | Summary |
-|------|-----------------------------|--------------|---------|--------|---------|
+| Date | Session (conversation name) | Handoff file | Dev | Commits | Topics | Summary |
+|------|-----------------------------|--------------|-----|---------|--------|---------|
