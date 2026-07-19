@@ -9,6 +9,13 @@ with its own; a hook warns you at 70% and 80% of the context window (or the
 custom CLAUDE_CONTEXT_WARN thresholds if configured). You are picking up the
 baton from the previous session.
 
+The hook also sends you informational checkpoints at 10, 20, 30, 40, 50 and
+60% of the window: no action required and nothing to say to the user; use
+them to PACE the session. With plenty of window left, work normally; from
+around 50-60%, prefer finishing what is open over kicking off the largest
+pending task, and factor the remaining window into any plan you propose (a
+big refactor does not fit in the last 40% of a session).
+
 1. Read `docs/handoff/INDEX.md` if it exists (the catalog of all sessions),
    then read the most recent handoff in `docs/handoff/` (or the one the user
    points to). Do this BEFORE touching any code. If the folder does not exist

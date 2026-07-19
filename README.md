@@ -51,7 +51,7 @@ Nothing is ever lost to compaction again.
 
 | File | Purpose |
 |------|---------|
-| `.claude/hooks/context-warn.sh` | PostToolUse hook: reads token usage from the transcript and injects a warning to the agent at 70% and 80% of the window, plus revisit guards at 85/90/95/99% (each once per session). |
+| `.claude/hooks/context-warn.sh` | PostToolUse hook: reads token usage from the transcript and keeps the agent aware of its window. Informational checkpoints every 10% (10-60%), close-out warnings at 70% and 80%, revisit guards at 85/90/95/99% (each once per session). |
 | `.claude/settings.json` | Hook registration (merged into your existing settings, never clobbered). |
 | `.claude/commands/kickoff.md` | The `/kickoff` slash command: opens a session (reads the index and the latest handoff, checks git state, summarizes where things stand). |
 | `.claude/commands/handoff.md` | The `/handoff` slash command: closes a session (writes the dated handoff with its metadata header, appends the index row, hands over the literal close-out steps). |
@@ -193,10 +193,19 @@ Handoff rules (the agent gets them from CLAUDE.md and `/handoff`):
 Claude Code emits a JSONL transcript per session that includes per-message
 token usage. On every tool call (PostToolUse, matcher `*`), the hook reads the
 most recent usage entry, computes the percentage against
-`CLAUDE_CONTEXT_LIMIT` (default 200000), and if it crossed 70% or 80% it
-injects a warning into the agent's context via `additionalContext`. A marker
-file in `/tmp` guarantees each threshold fires only once per session, so the
-agent is nudged, not spammed.
+`CLAUDE_CONTEXT_LIMIT` (default 200000), and injects a notice into the
+agent's context via `additionalContext` when a band is crossed:
+
+- **10, 20, 30, 40, 50, 60%**: informational checkpoints. No action required;
+  they simply keep the agent aware of where it stands (without the hook, the
+  model cannot see its own percentage at all).
+- **70 and 80%** (or the custom `CLAUDE_CONTEXT_WARN` thresholds): the
+  close-out warnings described in the cycle above.
+- **85, 90, 95, 99%**: the revisit guards, ending in the STOP LAW.
+
+A marker file in `/tmp` guarantees each band fires only once per session, and
+if one tool call jumps several bands at once, only the most serious one
+speaks, so the agent is nudged, not spammed.
 
 ## Revisiting old conversations
 

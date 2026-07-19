@@ -72,8 +72,16 @@ ritual):**
    a handoff plus a new session.
 
 **During the session:** the repo hook (`.claude/hooks/context-warn.sh`) injects
-context warnings to the agent (the agent CANNOT see its own percentage without
-this; the human sees it in the statusline). Rules on receiving the warning:
+context notices to the agent (the agent CANNOT see its own percentage without
+this; the human sees it in the statusline). You will receive two kinds:
+
+- **Informational checkpoints (10, 20, 30, 40, 50, 60%)**: no action required
+  and nothing to say to the user; use them to PACE the session. Know where you
+  stand and plan accordingly: with plenty of window left, work normally; from
+  around 50-60%, prefer finishing what is open over kicking off the largest
+  pending task, and factor the remaining window into any plan you propose (a
+  big refactor does not fit in the last 40% of a session).
+- **Close-out warnings**, with these rules on arrival:
 - **Soft threshold (70% by default)**: do not start new large tasks. Finish
   what is open, write the handoff, and commit and push. The goal is to close
   leaving 10-15% of the window free, so the conversation stays complete and
