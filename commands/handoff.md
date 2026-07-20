@@ -67,13 +67,19 @@ Rows are append-only: never edit or delete existing rows.
 Finally, close with LITERAL instructions the user can copy (assume an
 inexperienced user):
 1. Commit and push all verified work (if the machine has more than one GitHub
-   account, check first that the active one is correct for this repo).
+   account, check first that the active one is correct for this repo). This is
+   what makes the handoff visible to the next session, so it MUST happen before
+   step 3. Say which branch you pushed to.
 2. Tell the user, word for word: "Copy and paste this into this same chat and
    press Enter: `/rename <the exact Session name from the header>`" (only the
    human can rename).
 3. Tell the user: "Then close this conversation, open a NEW one, and make your
-   first message: `/relevio:kickoff`" (or, if they prefer words: "read
-   the handoff `docs/handoff/<file just created>` and let's continue").
+   first message: `/relevio:kickoff`." State, in that same message, the branch
+   this session worked on and the handoff file, so the next session can
+   reconcile the branch even if it opens on a different one: e.g. "This session
+   worked on branch `<branch>` (handoff `docs/handoff/<file just created>`);
+   /relevio:kickoff will read it and confirm the branch with you before
+   continuing."
 
 If the "user" is itself an operator agent driving Claude Code, these close-out
 instructions are for IT to execute, not to display: it sends the `/rename`,

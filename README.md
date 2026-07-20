@@ -170,8 +170,12 @@ it also writes a marked block to `.gitignore` so `CLAUDE.md`, `.claude/` and
 
 ```
 new session, first message: /kickoff
-  -> agent reads INDEX.md and the latest handoff in docs/handoff/
-  -> agent checks git state (branch, remote, uncommitted work)
+  -> agent finds the latest handoff ACROSS ALL BRANCHES (not just the current
+     one) and reads it, plus INDEX.md
+  -> agent reconciles the branch: it reads the handoff's Branch field, tells
+     you where the last session worked and whether that work is on main yet,
+     and ASKS whether to continue there or start a new branch (never switches
+     on its own)
   -> work
   -> hook warns at 70%: finish what is open, no new large tasks
   -> hook warns at 80%: write the handoff NOW
@@ -194,7 +198,25 @@ Handoff rules (the agent gets them from CLAUDE.md and `/handoff`):
   they carry dates. The newest is the starting point, the rest is history.
 - **Close-out is literal**: the agent ends every session with copy-paste
   instructions for the human (rename the session, open a new one, first
-  message: "read the handoff X and let's continue").
+  message: "read the handoff X and let's continue"). The close-out also names
+  the branch it worked on (see below).
+
+### Handoffs live on the branch you worked on
+
+A handoff is committed like any other file, so it lands on whatever branch the
+session was working on. If that was a feature branch and your next session
+opens on `main` (or in a different git worktree), the newest handoff is simply
+**not in that branch's working tree** — a naive `ls docs/handoff/` would miss
+it and the new session would read a stale one and lose track of the branch.
+`/kickoff` handles this: it looks for the latest handoff across **all** branches
+(`git log --all` by filename date), reads it from its ref with `git show` when
+it is not checked out, then reconciles: it reports the branch the last session
+worked on (the handoff's `Branch:` field), whether that work already reached
+main, and **asks you** whether to continue there or branch off. It never
+switches branches on its own, and if the branch is checked out in another
+worktree it tells you to open the session there. Two things make this reliable:
+the handoff always records its `Branch:`, and the close-out always commits and
+pushes before handing over.
 
 ## How the hook works
 

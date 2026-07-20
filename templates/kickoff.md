@@ -1,14 +1,41 @@
 Open this session following the "Sessions and handoffs" convention in
 CLAUDE.md: you are picking up the baton from the previous session.
 
-1. Read `docs/handoff/INDEX.md` if it exists (the catalog of all sessions),
-   then read the most recent handoff in `docs/handoff/` (or the one the user
-   points to). Do this BEFORE touching any code.
-2. Check git state BEFORE working: `git fetch origin`; report which branch you
-   are on, whether it is up to date with its remote, and whether there is
-   uncommitted work from a previous session. If it is not clear which branch
-   to work on (or where to branch from), ASK the user before touching
-   anything.
+1. Find and read the LATEST handoff, and do NOT assume it lives on your
+   current branch. The previous session may have committed it on a feature
+   branch you are not on, so it can be missing from your working tree. Steps:
+   a. `git fetch --all --prune` (fall back to `git fetch origin`).
+   b. Read `docs/handoff/INDEX.md` if present, then find the newest handoff
+      across ALL branches (handoff filenames sort chronologically):
+
+          git log --all --diff-filter=A --name-only --format='' -- 'docs/handoff/*.md' \
+            | grep -oE 'docs/handoff/[0-9]{4}-[0-9]{2}-[0-9]{2}_[^/]+\.md' | sort -u | tail -1
+
+   c. Read it. If that file is in your working tree, read it directly; if it
+      is NOT (it lives on another branch), read it from the ref that has it:
+
+          f=<the path from b>; c=$(git log --all --format='%H' -1 -- "$f"); git show "$c:$f"
+
+   If `docs/handoff/` has no handoffs yet, this is the project's first
+   session: say so and skip to step 2.
+2. Reconcile the branch BEFORE working (this is where sessions usually get
+   lost). The handoff header has a `Branch:` field: the branch the previous
+   session worked on. Report your current branch (`git rev-parse --abbrev-ref
+   HEAD`), whether it is up to date with its remote, and any uncommitted work.
+   Then work out where the previous work landed and ASK the user:
+   - Is that work already on main? Check with
+     `git merge-base --is-ancestor <handoff-commit> origin/main` (or `main`).
+     If yes, main already contains it and continuing on main is reasonable; if
+     no, the work still lives only on the feature branch.
+   - Explain the situation in a line or two and ASK which branch to work on:
+     e.g. "the last session worked on `feat-x`, which is NOT yet on main; you
+     are on `main`. Continue on `feat-x`, or start a new branch from here?"
+   - Do NOT switch branches on your own. Switch only after the user confirms,
+     and only safely: never `git checkout` over uncommitted changes, and if the
+     target branch is checked out in another git worktree (`git worktree
+     list`), you CANNOT switch to it here — tell the user to open the session
+     in that worktree's directory instead. If anything about the branch is
+     unclear, ASK before touching code.
 3. Give the user a short opening summary: where the project stands according
    to the handoff, the pending work in order, and any operational state the
    handoff recorded (running services, which environment is the source of
