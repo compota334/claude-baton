@@ -140,7 +140,7 @@ arrives, act on your own, without waiting to be asked:
    `/rename DD-MM-YY <short title of what was done>`" (the agent builds the
    date and the title, identical to the `Session` field of the handoff
    header; only the human can rename), and (b) "Then close this conversation,
-   open a NEW one, and make your first message: `/kickoff`" — and in that same
+   open a NEW one, and make your first message: `/kickoff`", and in that same
    message state the branch this session worked on and the handoff file, so the
    next session can reconcile the branch even if it opens on a different one.
 

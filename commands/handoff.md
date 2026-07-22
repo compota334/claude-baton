@@ -1,5 +1,5 @@
 ---
-description: Close a session — write the dated handoff, update the index, hand over the close-out steps
+description: Close a session - write the dated handoff, update the index, hand over the close-out steps
 ---
 
 Write a handoff for the next agent: you are passing the baton. Sessions close

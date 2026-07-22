@@ -1,5 +1,5 @@
 ---
-description: Open a session — read the latest handoff, check git state, summarize where things stand
+description: Open a session - read the latest handoff, check git state, summarize where things stand
 ---
 
 Open this session following the relevio cycle: a session is NEVER

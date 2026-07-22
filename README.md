@@ -209,7 +209,7 @@ Handoff rules (the agent gets them from CLAUDE.md and `/handoff`):
 A handoff is committed like any other file, so it lands on whatever branch the
 session was working on. If that was a feature branch and your next session
 opens on `main` (or in a different git worktree), the newest handoff is simply
-**not in that branch's working tree** — a naive `ls docs/handoff/` would miss
+**not in that branch's working tree**: a naive `ls docs/handoff/` would miss
 it and the new session would read a stale one and lose track of the branch.
 `/kickoff` handles this: it looks for the latest handoff across **all** branches
 (`git log --all` by filename date), reads it from its ref with `git show` when
