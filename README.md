@@ -156,11 +156,12 @@ it also writes a marked block to `.gitignore` so `CLAUDE.md`, `.claude/` and
 
 - Restart Claude Code in the project (hooks load when a session starts).
 - Per dev, once: run `claude update` (old versions do not support the hook)
-  and `/statusline` (so the human sees the context % too). If you use a
-  1M-token window, add `"env": {"CLAUDE_CONTEXT_LIMIT": "1000000"}` to your
-  `.claude/settings.local.json`; the hook default is 200k. To change the
-  warning thresholds, set `"CLAUDE_CONTEXT_WARN": "60,75"` the same way
-  (default `"70,80"`).
+  and `/statusline` (so the human sees the context % too). The hook detects
+  the model's real context window automatically (1M for current models, 200k
+  for Haiku); if it ever gets it wrong, override with
+  `"env": {"CLAUDE_CONTEXT_LIMIT": "1000000"}` in your
+  `.claude/settings.local.json`. To change the warning thresholds, set
+  `"CLAUDE_CONTEXT_WARN": "60,75"` the same way (default `"70,80"`).
 - Decide with your team whether the installed files get **committed** (shared
   methodology, recommended for teams: everyone's agent follows the same rules)
   or **gitignored** (personal setup). Same for `docs/handoff/`: commit it as
@@ -238,9 +239,15 @@ remove`, never forced), and offers to prune detached leftovers.
 
 Claude Code emits a JSONL transcript per session that includes per-message
 token usage. On every tool call (PostToolUse, matcher `*`), the hook reads the
-most recent usage entry, computes the percentage against
-`CLAUDE_CONTEXT_LIMIT` (default 200000), and injects a notice into the
-agent's context via `additionalContext` when a band is crossed:
+most recent usage entry and computes the percentage against the model's REAL
+context window: it maps the session's model to its documented window (1M for
+every current model, 200k for Haiku 4.5 and older models), falls back to a
+conservative 200k for unknown models (warning too early is annoying; warning
+too late lets auto-compact hit unannounced), and self-corrects to 1M with a
+loud one-time notice if measured usage ever exceeds the assumed window, which
+proves it wrong. An explicit `CLAUDE_CONTEXT_LIMIT` overrides the detection.
+When a band is crossed it injects a notice into the agent's context via
+`additionalContext`:
 
 - **10, 20, 30, 40, 50, 60%**: informational checkpoints. No action required;
   they simply keep the agent aware of where it stands (without the hook, the

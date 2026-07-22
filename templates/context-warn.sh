@@ -14,6 +14,8 @@
 # Config (via env, e.g. "env" in .claude/settings.local.json):
 #   CLAUDE_CONTEXT_LIMIT  window size in tokens (default 200000; 1M users: 1000000)
 #   CLAUDE_CONTEXT_WARN   "soft,hard" percentages (default "70,80")
+# Without CLAUDE_CONTEXT_LIMIT the hook auto-detects 1M windows (known 1M
+# models, or measured usage above the assumed limit, which proves it wrong).
 #
 # Portable: Linux and macOS (no tac, no GNU-only flags). Requires jq.
 INPUT=$(cat)
@@ -50,6 +52,39 @@ USED=$(grep '"input_tokens"' "$TRANSCRIPT" 2>/dev/null | tail -1 | jq -r '
   ($u.cache_creation_input_tokens // 0)' 2>/dev/null)
 [[ "$USED" =~ ^[0-9]+$ ]] || exit 0
 [ "$USED" -eq 0 ] && exit 0
+
+# Window-size detection. A wrong LIMIT makes every percentage a lie (a 1M
+# session read against 200k screams STOP LAW at a real 30%), so the limit is
+# resolved per MODEL, not from a blind default:
+# 1) explicit CLAUDE_CONTEXT_LIMIT always wins;
+# 2) otherwise, map the session's model to its real window (table below,
+#    from Anthropic's model catalog as of 2026-06: every current model is 1M
+#    except Haiku 4.5 at 200k; older 4.5-and-earlier models are 200k);
+# 3) unknown models fall back to 200k ON PURPOSE: underestimating warns too
+#    early (annoying, self-corrects), overestimating warns too late and lets
+#    auto-compact hit unannounced, which is the one failure relevio exists to
+#    prevent;
+# 4) backstop: if USED exceeds LIMIT the limit is PROVABLY wrong (a real
+#    window cannot be over 100% full): correct it to 1M and say so once,
+#    loudly, instead of firing false alarms. This also self-corrects case 3
+#    and an explicit-but-wrong CLAUDE_CONTEXT_LIMIT (evidence beats config).
+if [ -z "${CLAUDE_CONTEXT_LIMIT:-}" ]; then
+  MODEL=$(grep -o '"model":"[^"]*"' "$TRANSCRIPT" 2>/dev/null | tail -1)
+  case "$MODEL" in
+    *haiku*)  LIMIT=200000 ;;
+    *\[1m\]*|*fable*|*mythos*|*opus-4-6*|*opus-4-7*|*opus-4-8*|*sonnet-5*|*sonnet-4-6*)
+              LIMIT=1000000 ;;
+  esac
+fi
+if [ "$USED" -gt "$LIMIT" ]; then
+  if [ "$USED" -le 1000000 ]; then
+    once limitfix && emit "relevio: measured usage (${USED} tokens) exceeds the assumed context window of ${LIMIT} tokens, which is impossible in a real window; this session clearly runs a 1M-token window${CLAUDE_CONTEXT_LIMIT:+ (your explicit CLAUDE_CONTEXT_LIMIT=${CLAUDE_CONTEXT_LIMIT} looks wrong)}. Percentages now use 1,000,000 for this session. Tell the user to make it permanent with \"env\": {\"CLAUDE_CONTEXT_LIMIT\": \"1000000\"} in .claude/settings.local.json." && exit 0
+    LIMIT=1000000
+  else
+    once config && emit "relevio: measured usage (${USED} tokens) exceeds even a 1M window. The context math is broken in this environment; warnings are DISABLED for this session. Tell the user."
+    exit 0
+  fi
+fi
 PCT=$(( USED * 100 / LIMIT ))
 
 # Mark every band crossed; speak only the most serious one not yet emitted
